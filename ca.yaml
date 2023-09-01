@@ -1,0 +1,23 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: webhook1-certificate
+  namespace: webhook
+spec:
+  secretName: webhook1-certificate
+  dnsNames:
+  - denyenv.webhook
+  - denyenv.webhook.svc
+  - denyenv.webhook.svc.cluster.local
+  issuerRef:
+    name: selfsigned
+
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: selfsigned
+  namespace: webhook
+spec:
+  selfSigned: {}
