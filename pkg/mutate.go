@@ -30,7 +30,7 @@ func Mutate(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("mutating pod: ", pod.Name)
 
-	patchData, err := mutating(pod)
+	patchData, err := NewInjectMappingData(pod).Mutating().GetPatchData()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -41,14 +41,30 @@ func Mutate(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func mutating(pod *corev1.Pod) ([]byte, error) {
-	mpod := pod.DeepCopy()
+type InjectMappingData struct {
+	raw     *corev1.Pod
+	mutated *corev1.Pod
+}
 
-	injectAnnotation(mpod)
-	injectLabel(mpod)
+func NewInjectMappingData(raw *corev1.Pod) *InjectMappingData {
+	return &InjectMappingData{
+		raw: raw,
+	}
+}
 
-	// generate json patch
-	patch, err := jsondiff.Compare(pod, mpod)
+func (inject *InjectMappingData) Mutating() *InjectMappingData {
+	mpod := inject.raw.DeepCopy()
+
+	inject.injectAnnotation(mpod)
+	inject.injectLabel(mpod)
+
+	inject.mutated = mpod
+
+	return inject
+}
+
+func (inject *InjectMappingData) GetPatchData() ([]byte, error) {
+	patch, err := jsondiff.Compare(inject.raw, inject.mutated)
 	if err != nil {
 		return nil, err
 	}
@@ -56,15 +72,21 @@ func mutating(pod *corev1.Pod) ([]byte, error) {
 	return json.Marshal(patch)
 }
 
-func injectAnnotation(pod *corev1.Pod) {
+func (inject *InjectMappingData) injectAnnotation(pod *corev1.Pod) {
 	annotations := pod.GetAnnotations()
+	if annotations == nil {
+		annotations = make(map[string]string)
+	}
 	annotations["mutate-timestamp"] = fmt.Sprintf("%d", time.Now().Unix())
 
 	pod.SetAnnotations(annotations)
 }
 
-func injectLabel(pod *corev1.Pod) {
+func (inject *InjectMappingData) injectLabel(pod *corev1.Pod) {
 	labels := pod.GetLabels()
+	if labels == nil {
+		labels = make(map[string]string)
+	}
 	labels["mutated-app"] = "true"
 
 	pod.SetLabels(labels)
