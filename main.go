@@ -24,14 +24,18 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("hello world"))
+		return
+	})
 	mux.HandleFunc("/validate", pkg.Validate)
 	mux.HandleFunc("/mutate", pkg.Mutate)
 
-	log.Println("server listen on ':8000'...")
+	log.Println("server listen on ':80'...")
 
 	if certFile != "" && keyFile != "" {
-		log.Fatal(http.ListenAndServeTLS(":8000", certFile, keyFile, mux))
+		log.Fatal(http.ListenAndServeTLS(":80", certFile, keyFile, mux))
 	} else {
-		log.Fatal(http.ListenAndServe(":8000", mux))
+		log.Fatal(http.ListenAndServe(":80", mux))
 	}
 }
