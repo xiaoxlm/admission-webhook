@@ -1,0 +1,36 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: admission-demo
+  annotations:
+    cert-manager.io/inject-ca-from: webhook/webhook1-certificate
+webhooks:
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: admission-demo
+        namespace: webhook
+        port: 443
+        path: /mutate
+    failurePolicy: Fail
+    matchPolicy: Exact
+    name: admission-demo.xiaoxlm.dev
+    rules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+        resources:
+          - pods
+        scope: '*'
+    objectSelector:
+      matchExpressions:
+        - key: app
+          operator: NotIn
+          values:
+            - admission-demo
+    sideEffects: None
+    timeoutSeconds: 3

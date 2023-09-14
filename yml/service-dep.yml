@@ -16,7 +16,7 @@ spec:
         app: admission-demo
     spec:
       containers:
-        - image: zengxu/denyenv-validating-admission-webhook:v0
+        - image: onehand/webhook:v3
           env:
             - name: CERT_DIR
               value: "/etc/admission-demo-webhook/certs"
@@ -45,7 +45,7 @@ spec:
     - name: https
       port: 443
       protocol: TCP
-      targetPort: 8000
+      targetPort: 80
   selector:
     app: admission-demo
   type: ClusterIP

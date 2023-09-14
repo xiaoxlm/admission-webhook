@@ -1,4 +1,9 @@
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: webhook
+---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -7,9 +12,9 @@ metadata:
 spec:
   secretName: webhook1-certificate
   dnsNames:
-  - denyenv.webhook
-  - denyenv.webhook.svc
-  - denyenv.webhook.svc.cluster.local
+  - admission-demo.webhook
+  - admission-demo.webhook.svc
+  - admission-demo.webhook.svc.cluster.local
   issuerRef:
     name: selfsigned
 
