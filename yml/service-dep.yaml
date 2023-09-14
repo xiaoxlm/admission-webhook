@@ -2,30 +2,30 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: denyenv
-  name: denyenv
+    app: admission-demo
+  name: admission-demo
   namespace: webhook
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: denyenv
+      app: admission-demo
   template:
     metadata:
       labels:
-        app: denyenv
+        app: admission-demo
     spec:
       containers:
         - image: zengxu/denyenv-validating-admission-webhook:v0
           env:
             - name: CERT_DIR
-              value: "/etc/denyenv-webhook/certs"
-          name: denyenv
+              value: "/etc/admission-demo-webhook/certs"
+          name: admission-demo
           ports:
             - containerPort: 8000
               protocol: TCP
           volumeMounts:
-            - mountPath: /etc/denyenv-webhook/certs/
+            - mountPath: /etc/admission-demo-webhook/certs/
               name: tls-cert
       volumes:
         - name: tls-cert
@@ -37,8 +37,8 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: denyenv
-  name: denyenv
+    app: admission-demo
+  name: admission-demo
   namespace: webhook
 spec:
   ports:
@@ -47,6 +47,6 @@ spec:
       protocol: TCP
       targetPort: 8000
   selector:
-    app: denyenv
+    app: admission-demo
   type: ClusterIP
 

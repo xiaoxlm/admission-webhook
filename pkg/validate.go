@@ -44,6 +44,11 @@ func Validate(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("validating pod: ", pod.Name)
 
+	if pod.GetNamespace() != "webhook" {
+		Response(reviewRESP, w)
+		return
+	}
+
 	for _, container := range pod.Spec.Containers {
 		if err = checkEnv(container.Env); err != nil {
 			FailureReviewRESP(reviewRESP, fmt.Sprintf("container %s validate failed.%s", container.Name, err.Error()))

@@ -2,7 +2,7 @@
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
 metadata:
-  name: denyenv
+  name: admission-demo
   annotations:
     cert-manager.io/inject-ca-from: webhook/webhook1-certificate
 webhooks:
@@ -10,13 +10,13 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: denyenv
+        name: admission-demo
         namespace: webhook
         port: 443
         path: /validate
     failurePolicy: Fail
     matchPolicy: Exact
-    name: denyenv.zeng.dev
+    name: admission-demo.xiaoxlm.dev
     rules:
       - apiGroups:
           - ""
@@ -32,6 +32,6 @@ webhooks:
         - key: app
           operator: NotIn
           values:
-            - denyenv
+            - admission-demo
     sideEffects: None
     timeoutSeconds: 3

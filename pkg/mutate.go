@@ -29,6 +29,10 @@ func Mutate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Println("mutating pod: ", pod.Name)
+	if pod.GetNamespace() != "webhook" {
+		Response(reviewRESP, w)
+		return
+	}
 
 	patchData, err := NewInjectMappingData(pod).Mutating().GetPatchData()
 	if err != nil {
